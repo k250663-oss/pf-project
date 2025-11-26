@@ -1,19 +1,29 @@
 #include <stdio.h>
 #include <time.h>         //for timer
 #include<string.h>
-#include<stdlib.h>                  //for clearing screen
+#include<stdlib.h>                  //for clearing screen 
 #include<unistd.h>             //for usleep - transition
+
 void rules();
 int levels();
 int level;
 int type_test(const char *sentence);
-void save_score(const char *name , float score);
+void save_score(const char *name , float score);           //*name = [pointer used to store memory address of name for score
 float score = 0;
 
 
-
-void print_colored_sentence(const char *sentence, int level) {
-    const char *color;
+int alph(const char *str){                               //to check if name contains only characters or not
+	for(int i=0 ; str[i] != '\0' ; i++){
+		
+		if(!((str[i] >= 'A' && str[i]<='Z')|| (str[i]>='a' && str[i]<='z'))){
+			return 0;
+		}
+	}
+	
+			return 1;
+	}
+void print_colored_sentence(const char *sentence, int level) {                //for assigning colour to sentences according to difficulty
+    const char *color;             //pointer to 
     if (level ==1){
 	
         color= "\033[33m";  // yellow for easy
@@ -25,10 +35,10 @@ void print_colored_sentence(const char *sentence, int level) {
 
     printf("%s%s\033[0m\n", color, sentence);  // print sentence with color
 }
-
+//file handling:
 void save_score(const char *name , float score){
-	char *lvl_ptr;
-    FILE *file = fopen("scores.txt" , "a");   //a is used for append
+	char *lvl_ptr;       //to store easy or hard
+    FILE *file = fopen("scores.txt" , "a");   //a is used for append , opens or creates a txt file named scores
      if (file==NULL) {
         printf("Error\n");
         return;
@@ -53,11 +63,11 @@ void rules(){
 	printf("1. Your goal is to type the displayed sentence exactly as shown.\n2. Capitalization, spaces, and punctuation must be correct.\n3. The timer starts as soon as the sentence is displayed.\n4. Press 'Enter' after completing the sentence.\n5. Accuracy must be 99% or higher to earn a point.\n6. Word Per Second (WPS) and accuracy will be shown after each sentence.\n7. You will be given 5 sentences to type.\n8. Your final score will be out of 5.\n9. Do not use backspace while typing (if possible).\n10. Try to complete the sentence as fast and accurately as possible.\nGOOD LUCK!");
 }
 int levels(){
-	while(1){
+	while(1){         //loop breaks when correct value entered(returned)
 	
 	printf("Choose between\n\033[33m1.EASY MODE\n\033[36m2.HARD MODE\033[0m\n");
 	scanf("%d" , &level);
-	if(level == 1|| level==2){
+	if(level == 1|| level==2){          //validate the input
 
 		return level;
 }
@@ -70,11 +80,11 @@ int levels(){
 	
 
 int type_test(const char *sentence){
-		char uw[300] ;
-		memset(uw , 0 ,sizeof(uw));
+		char uw[400] ;           //to store what user types
+		memset(uw , 0 ,sizeof(uw));         //clear buffer , reset all to 0
 		
 		int ch;
-while((ch = getchar()) != '\n' && ch != EOF);           //when enter is pressed it clears the buffer including \n
+while((ch = getchar()) != '\n' && ch != EOF);           //when enter is pressed it clears the buffer including \n , keep reading char until you find EOF or \n
 		printf("\n\nType the following sentence:\n");
 		print_colored_sentence(sentence , level);
 		time_t start, end;
@@ -82,7 +92,7 @@ while((ch = getchar()) != '\n' && ch != EOF);           //when enter is pressed 
 		fgets(uw, sizeof(uw), stdin);
 			time(&end);       //to record the end time
 			
-	uw[strcspn(uw, "\n")] = '\0';       //remove newline from input
+	uw[strcspn(uw, "\n")] = '\0';       //remove newline from input by replacing \n with null terminator
 			
 			double time_taken = difftime(end, start);   //to calc time taken
 				int len = strlen(sentence);
@@ -121,9 +131,9 @@ void title_animation() {
     char title[] = "                              WELCOME TO TYPING TUTOR\n\n by 25k-0663 & 25k-0803";
     printf("\n\033[32m");
     for (int i = 0; i < strlen(title); i++) {
-        printf("%c", title[i]);
-        fflush(stdout);
-        usleep(50000);
+        printf("%c", title[i]);                      //print single char
+        fflush(stdout);                               //forces output to appear immediately
+        usleep(50000);                        // pauses program for 0.05s
     }
     printf("\033[0m\n");
     printf("========================================================================================================================");
@@ -149,10 +159,19 @@ int main() {
   switch(menu){
   	case 1:
   		
-  	printf("Enter your name: ");
+  while(1){
+  		printf("\nEnter your name: ");
   fgets(name, sizeof(name), stdin);
+  name[strcspn(name , "\n")] =0;
+  if(alph(name)>0 && strlen(name)>0){
+  	break; //valid
+  }
+  else{
+  	printf("Invalid , name must contain letters only");
+  }
+  }
   score = 0;
-  level = levels();
+  level = levels();         //returns 1 , 2(easy or hard)
   char p;
   	if(level == 1){
 
@@ -177,7 +196,7 @@ int main() {
             
 		  }
 		  else{
-		  	printf("Dont! Give up");
+		  	printf("Dont! Give up\n");
 		  	level = levels();
 		  }
 	}
